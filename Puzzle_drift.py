@@ -269,8 +269,6 @@ Class Player1Panel extends PuzzlePanel {
 
 }
 
-
-
 Class Player2Panel extends Player1Panel {
 
     Public Player2Panel(String name, GamePanel gamePanel) {
@@ -282,4 +280,202 @@ Class Player2Panel extends Player1Panel {
     }
 
 }
+
+Class GamePanel extends JPanel {
+
+    Private GameFrame frame;
+
+    Private PuzzlePanel player1Panel, player2Panel;
+
+    Private JComboBox<String> categorySelect;
+
+    Private JLabel timerLabel, player1MovesLabel, player2MovesLabel;
+
+    Private Timer gameTimer;
+
+    Private int timeElapsed;
+
+    Private int gridSize;
+
+    Boolean isTwoPlayerMode = false;
+
+    Private boolean showNumbers = false;
+
+    Private BufferedImage image;
+
+    Private Clip backgroundMusic;
+
+    Private boolean isMusicPlaying = false;
+
+    Private Clip moveSoundClip;
+
+    Private boolean isSoundEnabled = true;
+
+    Private JSlider volumeSlider;
+
+    Private Clip victoryMusic;
+
+    Private boolean isVictoryMusicPlaying = false;
+
+
+
+    Private JButton showImageButton;
+
+    Private JButton showNumbersButton;
+
+    Private JButton puzzleSwapButton;
+
+    Private int showImageCount = 2;
+
+    Private int showNumbersCount = 2;
+
+    Private int puzzleSwapCount = 2;
+
+    Private Timer showImageTimer;
+
+    Private Timer showNumbersTimer;
+
+    Private Timer puzzleSwapTimer;
+
+
+
+    Private JButton homeButton;
+
+    Private JButton soundButton;
+
+
+
+    Private static final String[] categories = {“Cartoons”, “Sports”, “Anime”, “Merged Objects”, “Animals”};
+
+    Private static final String[][] imagePaths = {
+
+            {“C:\\Users\\Nuzhat\\Downloads\\9.jpg”, “C:\\Users\\Nuzhat\\Downloads\\8.jpg”, “C:\\Users\\Nuzhat\\Downloads\\7.jpg”},
+
+            {“C:\\Users\\Nuzhat\\Downloads\\14.jpg”, “C:\\Users\\Nuzhat\\Downloads\\15.jpg”, “C:\\Users\\Nuzhat\\Downloads\\16.jpg”},
+
+            {“C:\\Users\\Nuzhat\\Downloads\\1.jpg”, “C:\\Users\\Nuzhat\\Downloads\\3.jpg”, “C:\\Users\\Nuzhat\\Downloads\\2.jpg”},
+
+            {“C:\\Users\\Nuzhat\\Downloads\\11.jpg”, “C:\\Users\\Nuzhat\\Downloads\\12.jpg”, “C:\\Users\\Nuzhat\\Downloads\\13.jpg”},
+
+            {“C:\\Users\\Nuzhat\\Downloads\\18.jpg”, “C:\\Users\\Nuzhat\\Downloads\\19.jpg”, “C:\\Users\\Nuzhat\\Downloads\\20.jpg”}
+
+    };
+
+
+
+    Public GamePanel(GameFrame frame) {
+
+        This.frame = frame;
+
+        setLayout(new BorderLayout());
+
+        createMainMenu();
+
+        setupKeyBindings();
+
+        playBackgroundMusic();
+
+        loadSoundEffects();
+
+    }
+
+
+
+    Private void setupKeyBindings() {
+
+        InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        ActionMap actionMap = getActionMap();
+
+
+
+        String[] keys = {“UP”, “DOWN”, “LEFT”, “RIGHT”, “W”, “S”, “A”, “D”};
+
+        For (String key : keys) {
+
+            inputMap.put(KeyStroke.getKeyStroke(key), key);
+
+            actionMap.put(key, new AbstractAction() {
+
+                @Override
+
+                Public void actionPerformed(ActionEvent e) {
+
+                    handleKeyInput(key);
+
+                }
+
+            });
+
+        }
+
+    }
+
+
+
+    Private void handleKeyInput(String key) {
+
+        If (player1Panel == null || (isTwoPlayerMode && player2Panel == null)) return;
+
+
+
+        PuzzlePanel currentPanel = isTwoPlayerMode ?
+
+                (key.equals(“W”) || key.equals(“S”) || key.equals(“A”) || key.equals(“D”) ? player2Panel : player1Panel)
+
+                : player1Panel;
+
+
+
+        Boolean moved = false;
+
+        Switch (key) {
+
+            Case “UP”:
+
+            Case “W”:
+
+                Moved = currentPanel.moveTile(currentPanel.emptyRow + 1, currentPanel.emptyCol);
+
+                Break;
+
+            Case “DOWN”:
+
+            Case “S”:
+
+                Moved = currentPanel.moveTile(currentPanel.emptyRow – 1, currentPanel.emptyCol);
+
+                Break;
+
+            Case “LEFT”:
+
+            Case “A”:
+
+                Moved = currentPanel.moveTile(currentPanel.emptyRow, currentPanel.emptyCol + 1);
+
+                Break;
+
+            Case “RIGHT”:
+
+            Case “D”:
+
+                Moved = currentPanel.moveTile(currentPanel.emptyRow, currentPanel.emptyCol – 1);
+
+                Break;
+
+        }
+
+
+
+        If (moved) {
+
+            playMoveSound();
+
+            updateMovesLabels();
+
+            checkWinCondition();
+
+        }
+
+    }
 
